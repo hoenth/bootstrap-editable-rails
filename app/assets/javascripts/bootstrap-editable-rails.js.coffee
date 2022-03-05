@@ -23,6 +23,23 @@ jQuery ($) ->
           delete params.name
           delete params.value
           delete params.pk
+
+          # replacer is a function that looks for empty
+          # arrays and replaces them with an array with an empty
+          # string. 
+
+          # We need to do this because ajax will strip out any values (and their keys)
+          # that is considers empty. This would include an empty array. So what would have
+          # been an object like { school: { home_page_sections: [] }} becomes just {}
+          # which rails won't know what to do with. 
+
+          replacer =(key, value) -> 
+            if Array.isArray(value) && value.length == 0
+              [''] 
+            else 
+              value
+          params = JSON.parse(JSON.stringify(params, replacer))
+
           $.ajax($.extend({
             url     : originalUrl
             data    : params
